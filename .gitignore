@@ -1,0 +1,9 @@
+models/
+output/
+tmp/
+__pycache__/
+*.pyc
+.env
+*.wav
+!voices/**/*.wav
+.DS_Store

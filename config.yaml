@@ -1,0 +1,35 @@
+device: cpu
+
+lang: auto
+
+punctuate: auto
+
+pitch: 4
+
+f0method: harvest
+index_rate: 0.6
+protect: 0.33
+
+models_dir: models
+rvc_model: models/silence_suzuka
+output_dir: output
+tmp_dir: tmp
+
+languages:
+  ru:
+    engine: silero
+    speaker: xenia
+    sample_rate: 48000
+    pitch: 4
+
+  en:
+    engine: silero
+    speaker: en_0
+    sample_rate: 48000
+    pitch: 4
+
+  ja:
+    engine: piper
+    model: models/piper/ja_JP-hi_fi_captain-medium.onnx
+    speaker_id: 0
+    pitch: 2

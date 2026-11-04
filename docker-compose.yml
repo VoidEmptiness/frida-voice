@@ -1,0 +1,27 @@
+services:
+  voice:
+    build: .
+    image: frida-voice:latest
+    working_dir: /app
+    volumes:
+      - ./models:/app/models
+      - ./output:/app/output
+      - ./tmp:/app/tmp
+      - ./config.yaml:/app/config.yaml:ro
+      - ./scripts:/app/scripts:ro
+    environment:
+      - TORCH_HOME=/app/models/torch_hub
+      - HF_HOME=/app/models/hf
+    stdin_open: true
+    tty: true
+
+  download:
+    build: .
+    image: frida-voice:latest
+    entrypoint: ["python", "/app/scripts/download_models.py"]
+    environment:
+      - TORCH_HOME=/app/models/torch_hub
+      - HF_HOME=/app/models/hf
+    volumes:
+      - ./models:/app/models
+      - ./scripts:/app/scripts:ro
