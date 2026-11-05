@@ -16,3 +16,4 @@ fastapi
 uvicorn
 rvc-python==0.1.5
 transformers>=4.35,<5
+num2words>=0.5.12

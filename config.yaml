@@ -4,6 +4,8 @@ lang: auto
 
 punctuate: auto
 
+numbers: on
+
 pitch: 4
 
 f0method: harvest

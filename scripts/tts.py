@@ -6,7 +6,7 @@
 """
 frida-voice — локальный TTS голосом Фриды (ru / ja / en).
 
-  текст → базовый TTS (Silero/Piper) → RVC Silence Suzuka → WAV
+  текст → цифры словами → знаки препинания → базовый TTS (Silero/Piper) → RVC → WAV
 Без внешних API.
 """
 
@@ -26,6 +26,7 @@ import torch
 import yaml
 
 from punctuate import Punctuator, needs_punctuation
+from spell_numbers import spell_numbers
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -212,6 +213,7 @@ class SuzukaVoice:
         self.protect = float(cfg.get("protect", 0.33))
         self.lang_cfg: dict = cfg.get("languages") or {}
         self.punct_mode = str(cfg.get("punctuate", "auto")).lower()
+        self.numbers_on = str(cfg.get("numbers", "on")).lower() != "off"
 
         self.models_dir = resolve_path(cfg.get("models_dir", "models"))
         self.rvc_dir = resolve_path(cfg.get("rvc_model", "models/silence_suzuka"))
@@ -308,6 +310,12 @@ class SuzukaVoice:
         resolved = lang or self.force_lang or detect_lang(text)
         if resolved not in {"ru", "ja", "en"}:
             raise ValueError(f"Неизвестный язык: {resolved}")
+
+        if self.numbers_on:
+            spelled = spell_numbers(text, resolved)
+            if spelled != text:
+                print(f"[num] {spelled[:80]}{'…' if len(spelled) > 80 else ''}")
+                text = spelled
 
         if resolved in {"ru", "en"} and (
             self.punct_mode == "on"
@@ -422,6 +430,11 @@ def parse_args() -> argparse.Namespace:
         choices=["auto", "on", "off"],
         help="Постановка знаков препинания (моделью) перед озвучкой",
     )
+    p.add_argument(
+        "--numbers",
+        choices=["on", "off"],
+        help="Разворачивать цифры в слова перед озвучкой",
+    )
     return p.parse_args()
 
 
@@ -443,6 +456,8 @@ def main() -> int:
         cfg["lang"] = args.lang
     if args.punct:
         cfg["punctuate"] = args.punct
+    if args.numbers:
+        cfg["numbers"] = args.numbers
 
     print(
         f"device={cfg.get('device')} lang={cfg.get('lang', 'auto')} "
